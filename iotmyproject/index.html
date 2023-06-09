@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Arduino DHT Project</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Arduino DHT</h1>
+    <form>
+        <input type="text" id="temp" name="temp"><br><br>
+        <input type="text" id="humidity" name="humidity"><br><br>
+        <button onclick="Upali()"> Upali </button>
+    </form>
+    <div id="wrapper">
+        <input type="number" for="temperature" id="temperatura">  Temperatura</label>
+        <input type="number" for="humidity" id="vlaznost">  Vlaznost </label>
+        <input type="submit" id="button" value="Refresh">
+    </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5XvBEDm6yjXdbqDZ7p3y-C9WzH0UvkK0",
+            authDomain: "myproject-1ff6c.firebaseapp.com",
+            databaseURL: "https://myproject-1ff6c-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "myproject-1ff6c",
+            storageBucket: "myproject-1ff6c.appspot.com",
+            messagingSenderId: "313831414992",
+            appId: "1:313831414992:web:bb6d7703e0f21d4c4dd2d5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        import { getDatabase, ref, get, set, child, update, remove }
+            from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+
+        const db = getDatabase();
+
+        var temperatura = document.getElementById("temperatura");
+        var setTemperatura = document.getElementById("button");
+        var temp = document.getElementById("temp");
+        var humidity = document.getElementById("humidity");
+        var vlaznost = document.getElementById("vlaznost");
+
+
+        //iz inputa gdje korisnik unosi vrijednosti se uzimaju i postavljaju u bazu kao granicne vrijednosti
+        function InsertData() {
+            console.log("testtest");
+                set(ref(db, "vrijednosti/"), {
+                    TemperaturnaGranica: parseInt(temperatura.value),
+                    VlaznostGranica:parseInt(vlaznost.value),
+                })
+                    .then(() => {
+                        alert("podaci uspjesno pohranjeni");
+                    })
+                    .catch((error) => {
+                        alert("neuspjesno ppohranjivanje podataka");
+                    });
+            }
+            //citanje vrijednosti iz baze i njihovo ispisivanje u inpute na stranici
+            function FetchData() {
+                const dbref = ref(db);
+                get(child(dbref, "vrijednosti/")).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        temp.value = snapshot.val().temperatura + ' °C';
+                        humidity.value = snapshot.val().vlaznost + ' %';
+                    }
+                });
+                console.log("test");
+            }
+            //citanje granicnih vrijednosti iz baze  
+            function FetchData1() {
+                const dbref = ref(db);
+                get(child(dbref, "vrijednosti/")).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        temperatura.value = snapshot.val().TemperaturnaGranica,
+                        vlaznost.value = snapshot.val().VlaznostGranica;
+                    }
+                });
+                
+            }
+
+            function Upali() {
+                if(temperatura.value <= TemperaturnaGranica.value && vlaznost.value <= VlaznostGranica.value)
+                {
+                    set(ref(db, "vrijednosti/"), {
+                        TemperaturnaGranica: parseInt(temperatura.value),
+                        VlaznostGranica: parseInt(vlaznost.value),
+                    })
+                        .then(() => {
+                            alert("podaci uspjesno pohranjeni");
+                        })
+                        .catch((error) => {
+                            alert("neuspjesno ppohranjivanje podataka");
+                        });
+                }
+            }
+
+
+            setInterval(()=>
+            {
+              FetchData();
+              FetchData1();
+            },5000);
+
+            button.addEventListener("click", InsertData);
+              
+
+
+    </script>
+
+</body>
+
+</html>
